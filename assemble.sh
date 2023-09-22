@@ -1,3 +1,3 @@
 #!/bin/zsh
 
-masm -d -o "pong.hex" "pong.asm"
+masm -d -o "wordle.hex" "wordle.asm"
