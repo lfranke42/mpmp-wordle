@@ -117,12 +117,6 @@ store_user_input:
   jr get_user_input
 
 check_user_input:
-  ldc %reg0 0x0100 ; address for number of rounds
-  ld %reg1 %reg0 ; load the number of rounds
-  ldc %reg0 0x0006 ; max number of rounds
-  tst %reg1 %reg0 ; test if the number of rounds is 0
-  jzr end_game_failed ;
-
   ;; Print newline to terminal
   ldc %reg0 0x8000
   ldc %reg1 0x0A
@@ -151,7 +145,34 @@ check_character:
 
   tst %reg2 %reg3 ; test if the characters are equal
   jzr correct_guess ; if the characters are equal, jump to correct_guess
+
+  ldc %reg6 0x00 ; reset the number of characters checked
+  jr check_character_contained
+
+
+check_character_contained:
+  ldc %reg5 0x05 ; max loop iterations / word length
+  tst %reg6 %reg5 ; test if the loop counter is equal to the max loop iterations
+  jnzr check_character_contained_loop
+
   jr wrong_guess ; if the characters are not equal, jump to wrong_guess
+
+
+check_character_contained_loop:
+  ldc %reg2 0x0100 ; base adress of stored word
+  add %reg2 %reg2 %reg6 ; calculate the address for the current stored character
+  ld %reg2 %reg2 ; load the current stored character
+  inc %reg6 ; increment the loop counter
+
+  tst %reg2 %reg3 ; test if the characters are equal
+  jnzr check_character_contained ; if the characters are not equal, jump to check_character_contained
+
+  ;; Print "_" to terminal
+  ldc %reg5 0x5F
+  ldc %reg6 0x8000
+  st %reg6 %reg5
+
+  jzr check_character_end ;
 
 wrong_guess:
   ldc %reg5 0x58
@@ -206,6 +227,13 @@ clear_input_mem:
   ldc %reg0 0x8000
   ldc %reg1 0x0A
   st %reg0 %reg1
+
+  ;; check if max num of rounds exceeded
+  ldc %reg0 0x0200 ; address for number of rounds
+  ld %reg1 %reg0 ; load the number of rounds
+  ldc %reg0 0x0006 ; max number of rounds
+  tst %reg1 %reg0 ; test if the number of rounds is 0
+  jzr end_game_failed ;
 
   jr get_user_input
 
