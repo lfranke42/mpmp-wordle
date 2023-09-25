@@ -1,0 +1,30 @@
+= Wordle - MPMP =
+
+== Overview ==
+Simplified version of the browser game "Wordle" running on a CPU built in Logisim.
+Due to the limited amount of RAM, the game contains a smaller subset of the original game's dictionary.
+Additionally, guesses can be made with any combination of letters, regardless if they are a valid word or not.
+Checking each guess against the dictionary would have been too computationally expensive and would have required a larger RAM where all words would fit in.
+
+== Usage ==
+The game requires "Logisim Evolution" to run. It may also run on the original Logisim, but this has not been tested.
+
+1. Open the file `CPU-latest.circ` in Logisim Evolution.
+2. On the main screen, right-click on the `PRG_MEM` component and select `Load Image...`
+3. Select the file `build/wordle.hex` and click "Open".
+4. On the main screen, right-click on the `RAM` component and select `Load Image...`
+5. Select the file `build/ram.hex` and click "Open".
+6. Under the `Simulate` menu, select an Auto-Tick Frequency of at least 512 Hz.
+7. Under the `Simulate` menu, select `Ticks Enabled`.
+
+Now the Game should initialize and you can start playing.
+Enter Text using the keyboard below the Terminal.
+Enter your guess in lowercase characters.
+
+After you've made your guess, the game will display hints below each letter of your entered guess:
+
+`X` - The letter is not in the word.
+
+`_` - The letter is in the word, but not at the position you guessed.
+
+`+` - The letter is in the word and at the position you guessed.

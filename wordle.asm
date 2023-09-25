@@ -3,23 +3,50 @@ init_game:
   ldc %reg1 0x00 ; number of rounds played
   st %reg0 %reg1
 
-  ldc %reg0 0x0100 ; base adress of the word to guess
+  jr get_random_word
 
-  ;; store the word to guess to adress 0x0100 - 0x0104
-  ldc %reg1 0x72
-  st %reg0 %reg1
+
+get_random_word:
+  ;; generate new random number
+  ldc %reg0 0x8006
+  ld %reg1 %reg0
+
+  ;; load the generated number
+  ldc %reg0 0x8007
+  ld %reg1 %reg0
+
+  ldc %reg0 0x0FFF
+  and %reg1 %reg1 %reg0 ; mask the random number so that only the lower 12 bits are used (0 - 4095)
+
+  ldc %reg2 0x0008 ; offset for each word
+  mul %reg1 %reg1 %reg2 ; calculate the offset for the random word
+
+  ldc %reg0 0x0960 ; memory address where the word list starts
+  add %reg0 %reg0 %reg1 ; calculate the address for the random word
+
+  ld %reg1 %reg0 ; load the first char of the chosen word
+
+  ;; check if first char is 0
+  ldc %reg2 0x00
+  tst %reg1 %reg2
+  jzr get_random_word ; if the random word is 0, get a new random word
+
+  ldc %reg1 0x0100 ; base adress of the word to guess
+  ldc %reg6 0x00 ; loop counter
+
+  jr load_random_word
+
+load_random_word:
+  ld %reg2 %reg0 ; load the current char of the chosen word
+  st %reg1 %reg2 ; store the current char of the chosen word
   inc %reg0
-  ldc %reg1 0x6F
-  st %reg0 %reg1
-  inc %reg0
-  ldc %reg1 0x63
-  st %reg0 %reg1
-  inc %reg0
-  ldc %reg1 0x6B
-  st %reg0 %reg1
-  inc %reg0
-  ldc %reg1 0x79
-  st %reg0 %reg1
+  inc %reg1
+  inc %reg6
+  ldc %reg2 0x05 ; max loop iterations / word length
+  tst %reg6 %reg2 ; test if the loop counter is equal to the max loop iterations
+  jnzr load_random_word
+  jr display_title
+
 
 display_title:
   ldc %reg0 0x8000 ; address for writing to the screen
@@ -244,7 +271,14 @@ win_game:
   ldc %reg1 0x0A
   st %reg0 %reg1
 
-  ;; Print "You win!" to terminal
+  ;; get number of rounds played in ascii
+  ldc %reg0 0x0200 ; address for number of rounds
+  ld %reg2 %reg0 ; load the number of rounds played
+  inc %reg2 ; add last round
+  ldc %reg0 0x0030
+  or %reg2 %reg2 %reg0 ; convert number of rounds to ascii
+
+  ;; Print "You won in x rounds!" to terminal
   ;; You
   ldc %reg0 0x8000
   ldc %reg1 0x59
@@ -256,12 +290,41 @@ win_game:
   ldc %reg1 0x20
   st %reg0 %reg1
 
-  ;; win!
+  ;; won
   ldc %reg1 0x77
   st %reg0 %reg1
+  ldc %reg1 0x6f
+  st %reg0 %reg1
+  ldc %reg1 0x6E
+  st %reg0 %reg1
+  ldc %reg1 0x20
+  st %reg0 %reg1
+
+  ;; in
   ldc %reg1 0x69
   st %reg0 %reg1
   ldc %reg1 0x6E
+  st %reg0 %reg1
+  ldc %reg1 0x20
+  st %reg0 %reg1
+
+  ;; "x" - number of rounds played
+  st %reg0 %reg2
+  ldc %reg1 0x20
+  st %reg0 %reg1
+
+  ;; rounds!
+  ldc %reg1 0x72
+  st %reg0 %reg1
+  ldc %reg1 0x6F
+  st %reg0 %reg1
+  ldc %reg1 0x75
+  st %reg0 %reg1
+  ldc %reg1 0x6E
+  st %reg0 %reg1
+  ldc %reg1 0x64
+  st %reg0 %reg1
+  ldc %reg1 0x73
   st %reg0 %reg1
   ldc %reg1 0x21
   st %reg0 %reg1

@@ -1,3 +1,3 @@
 #!/bin/zsh
 
-masm -d -o "wordle.hex" "wordle.asm"
+masm -d -o "./build/wordle.hex" "wordle.asm"
