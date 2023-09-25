@@ -171,7 +171,6 @@ check_character_end:
   ldc %reg5 0x05 ; max loop iterations / word length
   tst %reg7 %reg5 ; all characters guessed correctly?
   jzr win_game ; if all characters are guessed correctly, jump to win_game
-  ldc %reg7 0x00 ; reset the correct guess counter for next round
 
   ;; check if all characters are checked
   tst %reg4 %reg5 ; test if the loop counter is equal to the max loop iterations
@@ -202,6 +201,11 @@ clear_input_mem:
   add %reg0 %reg0 %reg1 ; calculate the address for the next character
   tst %reg1 %reg5 ; test if the loop counter is equal to 5
   jnzr clear_input_mem
+
+  ;; Print newline to terminal
+  ldc %reg0 0x8000
+  ldc %reg1 0x0A
+  st %reg0 %reg1
 
   jr get_user_input
 
@@ -234,6 +238,8 @@ win_game:
   ldc %reg1 0x21
   st %reg0 %reg1
 
+  hlt
+
 end_game_failed:
   ;; Print newline
   ldc %reg0 0x8000
@@ -262,3 +268,5 @@ end_game_failed:
   st %reg0 %reg1
   ldc %reg1 0x21
   st %reg0 %reg1
+
+  hlt
