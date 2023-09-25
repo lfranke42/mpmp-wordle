@@ -1,4 +1,8 @@
 init_game:
+  ldc %reg0 0x0200 ; address for storing number of rounds played
+  ldc %reg1 0x00 ; number of rounds played
+  st %reg0 %reg1
+
   ldc %reg0 0x0100 ; base adress of the word to guess
 
   ;; store the word to guess to adress 0x0100 - 0x0104
@@ -113,6 +117,12 @@ store_user_input:
   jr get_user_input
 
 check_user_input:
+  ldc %reg0 0x0100 ; address for number of rounds
+  ld %reg1 %reg0 ; load the number of rounds
+  ldc %reg0 0x0006 ; max number of rounds
+  tst %reg1 %reg0 ; test if the number of rounds is 0
+  jzr end_game_failed ;
+
   ;; Print newline to terminal
   ldc %reg0 0x8000
   ldc %reg1 0x0A
@@ -121,7 +131,7 @@ check_user_input:
   ;; Check if the user input is correct
   ldc %reg0 0x0100 ; base adress of the word to guess
   ldc %reg1 0x004 ; base adress of the user input
-  ldc %reg4 0x00 ; counter for the loop
+  ldc %reg4 0x00 ; counter for the word loop
   ldc %reg7 0x00 ; counter for correctly guessed characters
 
   jr check_character
@@ -157,13 +167,44 @@ correct_guess:
   jr check_character_end
 
 check_character_end:
+ ;; check if all characters are correct
   ldc %reg5 0x05 ; max loop iterations / word length
   tst %reg7 %reg5 ; all characters guessed correctly?
   jzr win_game ; if all characters are guessed correctly, jump to win_game
   ldc %reg7 0x00 ; reset the correct guess counter for next round
 
+  ;; check if all characters are checked
   tst %reg4 %reg5 ; test if the loop counter is equal to the max loop iterations
   jnzr check_character ; if the loop counter is not equal to 5 check next character
+
+  ;; update rounds played
+  ldc %reg5 0x0200 ; address for storing number of rounds played
+  ld %reg4 %reg5 ; load the number of rounds played
+  inc %reg4
+  st %reg5 %reg4 ; store new number of rounds played
+
+  jr reset_user_input
+
+
+reset_user_input:
+  ldc %reg0 0x00 ; address for counting the number of characters
+  st %reg0 %reg0 ; reset the number of characters
+  ldc %reg0 0x004 ; base adress of the user input
+  ldc %reg1 0x00 ; loop counter
+  ldc %reg2 0x00 ; character to write
+  ldc %reg5 0x05 ; max loop iterations
+  jr clear_input_mem
+
+
+clear_input_mem:
+  st %reg0 %reg2 ; write 0 to the first character
+  inc %reg1 ; increment the loop counter
+  add %reg0 %reg0 %reg1 ; calculate the address for the next character
+  tst %reg1 %reg5 ; test if the loop counter is equal to 5
+  jnzr clear_input_mem
+
+  jr get_user_input
+
 
 win_game:
   ;; Print newline to terminal
@@ -193,3 +234,31 @@ win_game:
   ldc %reg1 0x21
   st %reg0 %reg1
 
+end_game_failed:
+  ;; Print newline
+  ldc %reg0 0x8000
+  ldc %reg1 0x0A
+  st %reg0 %reg1
+
+  ;; Print "You lose!" to terminal
+  ;; You
+  ldc %reg1 0x59
+  st %reg0 %reg1
+  ldc %reg1 0x6F
+  st %reg0 %reg1
+  ldc %reg1 0x75
+  st %reg0 %reg1
+  ldc %reg1 0x20
+  st %reg0 %reg1
+
+  ;; lose!
+  ldc %reg1 0x6C
+  st %reg0 %reg1
+  ldc %reg1 0x6F
+  st %reg0 %reg1
+  ldc %reg1 0x73
+  st %reg0 %reg1
+  ldc %reg1 0x65
+  st %reg0 %reg1
+  ldc %reg1 0x21
+  st %reg0 %reg1
