@@ -360,4 +360,56 @@ end_game_failed:
   ldc %reg1 0x21
   st %reg0 %reg1
 
+  ;; Print newline
+  ldc %reg1 0x0A
+  st %reg0 %reg1
+
+  ;; Print "The word was: " to terminal
+  ;; The
+  ldc %reg1 0x54
+  st %reg0 %reg1
+  ldc %reg1 0x68
+  st %reg0 %reg1
+  ldc %reg1 0x65
+  st %reg0 %reg1
+  ldc %reg1 0x20
+  st %reg0 %reg1
+
+  ;; word
+  ldc %reg1 0x77
+  st %reg0 %reg1
+  ldc %reg1 0x6F
+  st %reg0 %reg1
+  ldc %reg1 0x72
+  st %reg0 %reg1
+  ldc %reg1 0x64
+  st %reg0 %reg1
+  ldc %reg1 0x20
+  st %reg0 %reg1
+
+  ;; was:
+  ldc %reg1 0x77
+  st %reg0 %reg1
+  ldc %reg1 0x61
+  st %reg0 %reg1
+  ldc %reg1 0x73
+  st %reg0 %reg1
+  ldc %reg1 0x3A
+  st %reg0 %reg1
+  ldc %reg1 0x20
+  st %reg0 %reg1
+
+  ldc %reg1 0x0100 ; base adress of the word to guess
+  ldc %reg2 0x00 ; loop counter
+  jr print_word_to_guess
+
+print_word_to_guess:
+  ld %reg7 %reg1 ; load the current char of the chosen word
+  st %reg0 %reg7 ; print char
+  inc %reg1
+  inc %reg2
+
+  ldc %reg3 0x05 ; max loop iterations / word length
+  tst %reg2 %reg3 ; test if the loop counter is equal to the max loop iterations
+  jnzr print_word_to_guess
   hlt
