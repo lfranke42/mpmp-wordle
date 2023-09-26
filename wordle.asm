@@ -18,8 +18,8 @@ get_random_word:
   ldc %reg0 0x0FFF
   and %reg1 %reg1 %reg0 ; mask the random number so that only the lower 12 bits are used (0 - 4095)
 
-  ldc %reg2 0x0008 ; offset for each word
-  mul %reg1 %reg1 %reg2 ; calculate the offset for the random word
+  ldc %reg2 0x0003 ; offset for each word in mem
+  shl %reg1 %reg1 %reg2 ; multiply the random number by 4
 
   ldc %reg0 0x0960 ; memory address where the word list starts
   add %reg0 %reg0 %reg1 ; calculate the address for the random word
